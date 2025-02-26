@@ -1,0 +1,49 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+
+# Title
+st.title("AI-Powered Hospitality Analytics Dashboard")
+
+# Sidebar Filters
+date_range = st.sidebar.date_input("Select Date Range", [datetime.today() - timedelta(days=30), datetime.today()])
+channel = st.sidebar.selectbox("Select Traffic Channel", ["All", "Organic", "Paid", "Direct", "Referral"])
+
+# Generate Sample Data
+np.random.seed(42)
+dates = pd.date_range(start=date_range[0], end=date_range[1])
+data = pd.DataFrame({
+    "Date": np.tile(dates, 1),
+    "Pageviews": np.random.randint(500, 1500, len(dates)),
+    "Bookings": np.random.randint(10, 100, len(dates)),
+    "Revenue": np.random.randint(1000, 20000, len(dates)),
+    "Conversion Rate": np.random.uniform(1, 5, len(dates))
+})
+
+# Apply Filters
+if channel != "All":
+    data = data.sample(frac=0.8)  # Simulating reduced data for selected channel
+
+# Display Metrics
+st.metric(label="Total Pageviews", value=f"{data['Pageviews'].sum():,}")
+st.metric(label="Total Bookings", value=f"{data['Bookings'].sum():,}")
+st.metric(label="Total Revenue ($)", value=f"{data['Revenue'].sum():,}")
+
+# Line Chart for Booking Trends
+st.subheader("Booking Trends Over Time")
+fig, ax = plt.subplots()
+ax.plot(data["Date"], data["Bookings"], marker='o', linestyle='-')
+ax.set_xlabel("Date")
+ax.set_ylabel("Bookings")
+ax.set_title("Daily Bookings")
+st.pyplot(fig)
+
+# AI Insight: Predicting Next Week's Revenue
+st.subheader("AI Prediction: Next Week's Revenue")
+avg_daily_revenue = data['Revenue'].mean()
+predicted_revenue = avg_daily_revenue * 7
+st.write(f"Projected revenue for the next week: **${predicted_revenue:,.2f}**")
+
+st.write("This dashboard is powered by AI & automation to provide real-time insights into your hospitality business.")
